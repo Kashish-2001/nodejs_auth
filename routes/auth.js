@@ -2,6 +2,7 @@ const router = require("express").Router();
 const User = require("../model/User");
 const { registerValidation, loginValidation } = require("../validation");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 router.post("/register", async (req, res) => {
   // LETS VALIDATE THE DATA BEFORE WE MAKE A USER
@@ -24,7 +25,7 @@ router.post("/register", async (req, res) => {
   });
   try {
     const savedUser = await user.save();
-    res.send({ user: user._id }); // what is the difference between id and _id, both gives same response
+    res.send({ user: user._id });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -42,7 +43,10 @@ router.post("/login", async (req, res) => {
   // Wrong password
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(400).send("Invalid password");
-  res.send("Logged in");
+
+  // Create and assign a token
+  const token = jwt.sign({ _id: user._id }, process.env.SECRET_TOKEN);
+  res.header("auth-token", token).send(token);
 });
 
 module.exports = router;
