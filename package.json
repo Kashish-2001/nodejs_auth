@@ -19,5 +19,8 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.10"
+  },
+  "engines": {
+    "node": "15.11.0"
   }
 }
