@@ -32,21 +32,25 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  // LETS VALIDATE THE DATA BEFORE WE LOG IN THE USER
-  const { error } = loginValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  try {
+    // LETS VALIDATE THE DATA BEFORE WE LOG IN THE USER
+    const { error } = loginValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-  // Email doesn't exist
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("Email or password is wrong");
+    // Email doesn't exist
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(400).send("Email or password is wrong");
 
-  // Wrong password
-  const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send("Invalid password");
+    // Wrong password
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+    if (!validPass) return res.status(400).send("Invalid password");
 
-  // Create and assign a token
-  const token = jwt.sign({ _id: user._id }, process.env.SECRET_TOKEN);
-  res.header("auth-token", token).send(token);
+    // Create and assign a token
+    const token = jwt.sign({ _id: user._id }, process.env.SECRET_TOKEN);
+    res.header("auth-token", token).send(token);
+  } catch (err) {
+    res.status.send(err.message);
+  }
 });
 
 module.exports = router;
